@@ -1,2 +1,33 @@
+import os
+import numpy as np
+import pandas as pd
 
-수정1 제가 먼저 했어요
+def parsing(folder):
+    file_list = os.listdir(folder)
+    
+    headers_df = pd.DataFrame()
+    
+    for i, file in enumerate(file_list):
+        if file == '.ipynb_checkpoints' or file =='eml':
+            continue
+        
+        header = {}
+        f = open(os.path.join(folder, file), 'r', encoding='utf-8' )
+        while True:
+            line = f.readline()
+            # 메일 header만 읽기
+            if '<html>' in line:
+                break
+            data = line.split(':')
+            if len(data) >= 2:
+                column = data[0]
+                value = data[1].replace('\n','')
+                if '\t' not in column and '\n' not in column and '--' not in column:
+                    header[column] = value
+        header_df = pd.DataFrame(header, index = [i])
+        headers_df = pd.concat([headers_df, header_df])
+    return headers_df
+        
+headers_df = parsing('dataset/eml')
+
+headers_df.to_csv('./test.csv')  
