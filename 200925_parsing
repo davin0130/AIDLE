@@ -13,21 +13,31 @@ def parsing(folder):
         
         header = {}
         f = open(os.path.join(folder, file), 'r', encoding='utf-8' )
+        column = ''
+        isbody = False
         while True:
             line = f.readline()
             # 메일 header만 읽기
-            if '<html>' in line:
+            if not line:
                 break
-            data = line.split(':')
-            if len(data) >= 2:
-                column = data[0]
-                value = data[1].replace('\n','')
-                if '\t' not in column and '\n' not in column and '--' not in column:
+                
+            if '<html>' in line:
+                isbody = True
+                header['body'] = ''
+            if isbody == True:
+                header['body'] += line
+            else:
+                data = line.split(':')
+                if len(data) >= 2 and '\t' not in line:
+                    column = data[0]
+                    value = data[1].replace('\n','')
                     header[column] = value
+                else:
+                    header[column] += line
         header_df = pd.DataFrame(header, index = [i])
         headers_df = pd.concat([headers_df, header_df])
     return headers_df
         
-headers_df = parsing('dataset/eml')
-
-headers_df.to_csv('./test.csv')  
+    headers_df = parsing('dataset')
+    
+    headers_df.to_csv('./test.csv')
