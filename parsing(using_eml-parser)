@@ -23,6 +23,24 @@ parsed_eml = ep.decode_email_bytes(raw_email)
 
 json_data = json.dumps(parsed_eml, default=json_serial)
 
+def html_parsing(idx, file_path):
+    header = {}
+    f = open(file_path, 'r', encoding='utf-8' )
+    isbody = False
+    while True:
+        line = f.readline()
+        if not line:
+            break
+
+        if '<html>' in line:
+            isbody = True
+            header['html'] = 'line'
+        if isbody == True:
+            header['html'] += line
+            if '<html>' in line:
+                ishtml = False
+    return pd.DataFrame(data=header, index=[idx])
+    
 def toDataFrame(idx, key, value, column):
     col = column + '/' + key
     eml_df = pd.DataFrame()
@@ -77,13 +95,13 @@ def parsing(folder):
             print('header type ', type(parsed_eml['header']))
         else:
             eml_df = pd.concat([eml_df, toDataFrame(i, key, parsed_eml['header'][key], '')], axis=1)
+            
+        #### html-parsing ####
+        eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
         
         try:
             emls_df = pd.concat([emls_df, eml_df])  
-
         except:
-            # 중복되는 column 명 있을 경우 에러 발생
-            # ValueError: Plan shapes are not aligned
             print(parsed_eml)
             for c in eml_df.columns:
                 print(c)
