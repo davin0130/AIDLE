@@ -53,7 +53,7 @@ def parsing(folder):
     emls_df = pd.DataFrame()    
     count = 0
     for i, file in enumerate(file_list):
-        if count == 50:
+        if count == 50: # parsing할 eml 파일 수 선택
             break
         count += 1
         if file == '.ipynb_checkpoints' or file =='eml':
