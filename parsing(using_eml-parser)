@@ -2,27 +2,33 @@ import os
 import numpy as np
 import pandas as pd
 
-!pip install eml_parser
+#!pip install eml_parser
 
 import datetime
-import json
 import eml_parser
 
-
-def json_serial(obj):
-  if isinstance(obj, datetime.datetime):
-      serial = obj.isoformat()
-      return serial
-
-
-with open('./dataset/00001f0f-9df4-40e4-9c6e-d6c543f9353a.eml', 'rb') as fhdl:
-  raw_email = fhdl.read()
-
-ep = eml_parser.EmlParser()
-parsed_eml = ep.decode_email_bytes(raw_email)
-
-json_data = json.dumps(parsed_eml, default=json_serial)
-
+def toDataFrame(idx, key, value, column):
+    col = column + '/' + key
+    eml_df = pd.DataFrame()
+    
+    if type(value) == type(dict()):
+        for k in value:
+            eml_df = pd.concat([eml_df, toDataFrame(idx, k, value[k], col)], axis=1)
+            
+    elif type(value) == type(list()):
+        v = ''
+        for i, d in enumerate(value):
+            if type(d) == type(dict()):
+                eml_df = pd.concat([eml_df, toDataFrame(idx, str(i), d, col)], axis=1)
+            elif type(d) == type(str()):
+                v += d
+        eml_df = pd.concat([eml_df, pd.DataFrame(data={col: v}, index=[idx])], axis=1)
+    
+    else:     #str, datetime.datetime
+        eml_df = pd.DataFrame(data={col: value}, index=[idx])
+        
+    return eml_df
+    
 def html_parsing(idx, file_path):
     header = {}
     f = open(file_path, 'r', encoding='utf-8' )
@@ -41,30 +47,6 @@ def html_parsing(idx, file_path):
                 ishtml = False
     return pd.DataFrame(data=header, index=[idx])
     
-def toDataFrame(idx, key, value, column):
-    col = column + '/' + key
-    eml_df = pd.DataFrame()
-    
-    if type(value) == type(dict()):
-        for k in value:
-            eml_df = pd.concat([eml_df, toDataFrame(idx, k, value[k], col)], axis=1)
-            
-    elif type(value) == type(list()):
-        v = ''
-        for i, d in enumerate(value):
-            if type(d) == type(dict()):
-                eml_df = pd.concat([eml_df, toDataFrame(idx, str(i), d, col)], axis=1)
-            elif type(d) == type(str()):
-                v += d
-        eml_df = pd.concat([eml_df, pd.DataFrame(data={col: v}, index=[idx])], axis=1)
-                
-    
-    #str, datetime.datetime
-    else:
-        eml_df = pd.DataFrame(data={col: value}, index=[idx])
-        
-    return eml_df
-
 def parsing(folder):
     file_list = os.listdir(folder)
     
@@ -90,11 +72,11 @@ def parsing(folder):
             print('body type ', type(parsed_eml['body']))
         else:
             eml_df = toDataFrame(i, 'body', parsed_eml['body'], '')
-
+            
         if type(parsed_eml['header']) != type(dict()):
             print('header type ', type(parsed_eml['header']))
         else:
-            eml_df = pd.concat([eml_df, toDataFrame(i, key, parsed_eml['header'][key], '')], axis=1)
+            eml_df = pd.concat([eml_df, toDataFrame(i, 'header', parsed_eml['header'], '')], axis=1)
             
         #### html-parsing ####
         eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
@@ -106,7 +88,6 @@ def parsing(folder):
             for c in eml_df.columns:
                 print(c)
             print()
-    
         
     return emls_df
     
