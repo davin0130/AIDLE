@@ -11,7 +11,7 @@ def parsing(folder):
         if file == '.ipynb_checkpoints' or file =='eml':
             continue
         
-        header = {}
+        header = {'':''}
         f = open(os.path.join(folder, file), 'r', encoding='utf-8' )
         column = ''
         isbody = False
