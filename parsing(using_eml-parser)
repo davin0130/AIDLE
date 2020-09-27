@@ -68,7 +68,10 @@ def parsing(folder):
           raw_email = fhdl.read()
 
         ep = eml_parser.EmlParser()
-        parsed_eml = ep.decode_email_bytes(raw_email)
+        try:
+            parsed_eml = ep.decode_email_bytes(raw_email)
+        except:
+            print('**', file)
     
         #### to DataFrame ####
         if type(parsed_eml['body']) != type(list()):
