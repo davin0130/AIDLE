@@ -41,3 +41,22 @@ def parsing(folder):
     headers_df = parsing('dataset')
     
     headers_df.to_csv('./test.csv')
+
+# 메일 바디만 뽑아서 csv로 저장
+headers_df = parsing('dataset_example')
+
+headers_df.iloc[:,20:21]
+mail_body = headers_df.iloc[:,20:21].to_csv('mail_body.csv')
+
+
+# 파일 불러오기 > 한 줄씩 읽어들이기
+# </body>가 나올 때까지 
+# <div></div> 태그 사이에 있는 '='은 전부 ' '으로 변경
+def decoding(filename):
+    with open(filename) as file_object:
+        while :
+            contents = file_object.readline()
+    print(contents)
+ #   while contents.readline() == '  </BODY>':
+ #       contents_line = contents.readline()
+ #       print(contents_line)
