@@ -58,20 +58,17 @@ def parsing(folder):
     file_list = os.listdir(folder)
     
     emls_df = pd.DataFrame()    
-    #count = 0
+    count = 0
     
     for i, file in enumerate(file_list):
-        #if count == 50:     # parsing할 eml 파일 수 선택
-        #    break
-        #count += 1
-        #if file == '.ipynb_checkpoints' or file =='eml':
-        #    continue
-        
         # 원하는 파일이 아니면 제외(원하는 파일 선택)
         # 생각보다 오래걸릴 수 있어서 file[0:2] == '01' 과 같이 더 나눠서 반복해서 실행시키는 것 추천
-        if not (file[0] == '0' or file[0] == '1'):  # 각자 시작하는 16진수 선택
+        if not (file[0:3] == '0b2' or file[0:3] == '0b3'):  # 각자 시작하는 16진수 선택
             continue
-        print(file) # 진행상태 알고 싶으면 print
+        
+        if count%100 == 0:     # 진행 상태 확인(100개 단위로 file 이름 print)
+            print(file)
+        count += 1
         
         #### eml-parsing ####
         # eml-parsing을 이용해서 eml 파일의 header와 body(html(X)) 부분을 파싱 (메일 header & body 파싱)
@@ -80,12 +77,14 @@ def parsing(folder):
           raw_email = fhdl.read()
 
         ep = eml_parser.EmlParser()
+        # error가 발생해도 나머지 파일들에 대한 파싱값 저장하기 위해 try-except 사용
         try:
             parsed_eml = ep.decode_email_bytes(raw_email)   # 파싱한 결과가 담긴 변수(parsed_eml), 디렉토리 형태
-        except:
+        except AttributeError as e:
             # 특정 eml 파일에 대해 에러발생했음
-            # 이유는 모르겠어서 그냥 file명 출력하도록 해봤음
-            print('**', file)
+            # 이유는 모르겠어서 그냥 file명 출력
+            print('=== AssertionError:', e, '(during eml_parser) ===')
+            print('error file:', file)
     
         #### to DataFrame ####
         # parsed_eml에 들어있는 파싱된 정보들을 pandas dataframe으로 저장하기
@@ -107,19 +106,23 @@ def parsing(folder):
         # 이전의 eml_df와 병합, eml_df에 'html'열 추가
         eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
         
+        # error가 발생해도 나머지 파일들에 대한 파싱값 저장하기 위해 try-except 사용
         try:
             emls_df = pd.concat([emls_df, eml_df])  
-        except:
-            # eml_df에 중복되는 column명이 있을 경우 concat하는데 에러 발생
-            # 문제가 되는 column명 알아보기 위해, parsed_eml과 eml_df의 column명 print
+        except ValueError as e:
+            # 하나의 dataframe에 중복된 열이름이 있을 경우 concat할 때 error 발생
+            # 열이름 확인을 위해 eml_df의 열 print
+            print('=== ValueError:', e, '(during concat) ===') # error 문구, 마음대로 변경 가능, e변수에 error 내용 저장
+            print('error file name:', file)
             print(parsed_eml)
             for c in eml_df.columns:
                 print(c)
             print()
+        except AssertionError as e:
+            print('=== AssertionError:', e, '(during concat) ===') # error 문구, 마음대로 변경 가능, e변수에 error 내용 저장
+            print('error file name:', file)
             
-    # 파일들을 파싱한 후 DataFrame에 저장하여 반환
     return emls_df
     
-########### 여기부터 시작 #############
 eml_df = parsing('dataset/eml') # 파싱할 eml 파일들이 있는 디렉토리 경로입력
 eml_df.to_csv('./test.csv')
