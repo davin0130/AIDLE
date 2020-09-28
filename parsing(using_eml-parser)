@@ -71,7 +71,7 @@ def parsing(folder):
         print(file) # 진행상태 알고 싶으면 print
         
         #### eml-parsing ####
-        # eml-parsing을 이용해서 파일을 파싱
+        # eml-parsing을 이용해서 eml 파일의 header와 body(html(X)) 부분을 파싱 (메일 header & body 파싱)
         file_path = os.path.join(folder, file)
         with open(file_path, 'rb') as fhdl:
           raw_email = fhdl.read()
@@ -99,7 +99,7 @@ def parsing(folder):
             eml_df = pd.concat([eml_df, toDataFrame(i, 'header', parsed_eml['header'], '')], axis=1)
             
         #### html-parsing ####
-        # eml 파일의 html 부분 통째로 DataFrame 'body'열에 저장 
+        # eml 파일의 html 부분을 통째로 파싱하여 DataFrame 'html'열에 저장 (메일 내용(html) 파싱)
         # html-parsing 함수 이용
         # 이전의 eml_df와 병합, 이전의 eml_df에 'html'열 추가
         eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
