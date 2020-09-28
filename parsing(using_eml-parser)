@@ -7,6 +7,7 @@ import pandas as pd
 import datetime
 import eml_parser
 
+### json 형태(디렉토리(객체) 또는 리스트(배열))로된 값을 DataFrame 형태로 변환 ###
 def toDataFrame(idx, key, value, column):
     col = column + '/' + key
     eml_df = pd.DataFrame()
@@ -29,6 +30,7 @@ def toDataFrame(idx, key, value, column):
         
     return eml_df
     
+### 인자로 받은 eml 파일의 내용을 한줄씩 읽어 <html>부터 </html>까지 하나의 column('html')에 저장하여 반환 ###
 def html_parsing(idx, file_path):
     header = {}
     f = open(file_path, 'r', encoding='utf-8' )
@@ -43,37 +45,48 @@ def html_parsing(idx, file_path):
             header['html'] = 'line'
         if isbody == True:
             header['html'] += line
-            if '<html>' in line:
+            if '</html>' in line:
                 ishtml = False
+                
     return pd.DataFrame(data=header, index=[idx])
     
+### 인자로 받은 디렉토리(folder)에 있는 파일들 중 선택된 파일들에 대해 파싱한 후 DataFrame으로 저장 ###
 def parsing(folder):
     file_list = os.listdir(folder)
     
     emls_df = pd.DataFrame()    
     #count = 0
+    
     for i, file in enumerate(file_list):
         #if count == 50:     # parsing할 eml 파일 수 선택
         #    break
         #count += 1
         #if file == '.ipynb_checkpoints' or file =='eml':
         #    continue
+        
+        # 원하는 파일이 아니면 제외(원하는 파일 선택)
+        # 생각보다 오래걸릴 수 있어서 file[0:2] == '01' 과 같이 더 나눠서 반복해서 실행시키는 것 추천
         if not (file[0] == '0' or file[0] == '1'):  # 각자 시작하는 16진수 선택
-            break
+            continue
         print(file) # 진행상태 알고 싶으면 print
         
         #### eml-parsing ####
+        # eml-parsing을 이용해서 파일을 파싱
         file_path = os.path.join(folder, file)
         with open(file_path, 'rb') as fhdl:
           raw_email = fhdl.read()
 
         ep = eml_parser.EmlParser()
         try:
-            parsed_eml = ep.decode_email_bytes(raw_email)
+            parsed_eml = ep.decode_email_bytes(raw_email)   # 파싱한 결과가 담긴 변수(parsed_eml), 디렉토리 형태
         except:
+            # 특정 eml 파일에 대해 에러발생했음
+            # 이유는 모르겠어서 그냥 file명 출력하도록 해봤음
             print('**', file)
     
         #### to DataFrame ####
+        # parsed_eml에 들어있는 파싱된 정보들을 pandas dataframe으로 저장하기
+        # toDataFrame 함수 이용
         if type(parsed_eml['body']) != type(list()):
             print('body type ', type(parsed_eml['body']))
         else:
@@ -82,20 +95,28 @@ def parsing(folder):
         if type(parsed_eml['header']) != type(dict()):
             print('header type ', type(parsed_eml['header']))
         else:
+            # 이전의 eml_df와 병합, 이전의 eml_df에 header와 관련된 열들 추가
             eml_df = pd.concat([eml_df, toDataFrame(i, 'header', parsed_eml['header'], '')], axis=1)
             
         #### html-parsing ####
+        # eml 파일의 html 부분 통째로 DataFrame 'body'열에 저장 
+        # html-parsing 함수 이용
+        # 이전의 eml_df와 병합, 이전의 eml_df에 'html'열 추가
         eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
         
         try:
             emls_df = pd.concat([emls_df, eml_df])  
         except:
+            # eml_df에 중복되는 column명이 있을 경우 concat하는데 에러 발생
+            # 문제가 되는 column명 알아보기 위해, parsed_eml과 eml_df의 column명 print
             print(parsed_eml)
             for c in eml_df.columns:
                 print(c)
             print()
-        
+            
+    # 파일들을 파싱한 후 DataFrame에 저장하여 반환
     return emls_df
     
-eml_df = parsing('dataset/eml')
+########### 여기부터 시작 #############
+eml_df = parsing('dataset/eml') # 파싱할 eml 파일들이 있는 디렉토리 경로입력
 eml_df.to_csv('./test.csv')
