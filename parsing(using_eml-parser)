@@ -60,7 +60,7 @@ def parsing(folder):
         #    continue
         if not (file[0] == '0' or file[0] == '1'):  # 각자 시작하는 16진수 선택
             break
-        #print(file)
+        print(file) # 진행상태 알고 싶으면 print
         
         #### eml-parsing ####
         file_path = os.path.join(folder, file)
