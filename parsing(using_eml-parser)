@@ -98,13 +98,13 @@ def parsing(folder):
         if type(parsed_eml['header']) != type(dict()):
             print('header type ', type(parsed_eml['header']))
         else:
-            # 이전의 eml_df와 병합, 이전의 eml_df에 header와 관련된 열들 추가
+            # 이전의 eml_df와 병합, eml_df에 header와 관련된 열들 추가
             eml_df = pd.concat([eml_df, toDataFrame(i, 'header', parsed_eml['header'], '')], axis=1)
             
         #### html-parsing ####
         # eml 파일의 html 부분을 통째로 파싱하여 DataFrame 'html'열에 저장 (메일 내용(html) 파싱)
         # html-parsing 함수 이용
-        # 이전의 eml_df와 병합, 이전의 eml_df에 'html'열 추가
+        # 이전의 eml_df와 병합, eml_df에 'html'열 추가
         eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
         
         try:
