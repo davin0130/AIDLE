@@ -8,6 +8,9 @@ import datetime
 import eml_parser
 
 ### json 형태(디렉토리(객체) 또는 리스트(배열))로된 값을 DataFrame 형태로 변환 ###
+# 디렉토리와 리스트가 아닌 string 또는 datetime 타입의 값이 나올때까지 검사
+# string 또는 datetime값이 나오면 해당 key와 value를 DataFrame으로 바꾼 후 리턴
+# 계속해서 열이 추가되도록 concat 사용
 def toDataFrame(idx, key, value, column):
     col = column + '/' + key
     eml_df = pd.DataFrame()
