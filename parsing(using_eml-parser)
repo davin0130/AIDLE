@@ -25,7 +25,7 @@ def toDataFrame(idx, key, value, column):
             if type(d) == type(dict()):
                 eml_df = pd.concat([eml_df, toDataFrame(idx, str(i), d, col)], axis=1)
             elif type(d) == type(str()):
-                v += d
+                v += ' ' + d
         eml_df = pd.concat([eml_df, pd.DataFrame(data={col: v}, index=[idx])], axis=1)
     
     else:     #str, datetime.datetime
