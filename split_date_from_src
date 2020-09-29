@@ -78,7 +78,7 @@ def split_src(check_src_columns, check_src_df):
     return all_df
 
 # /header/received/0/src 를 split한 결과를 splited_df에 저장
-splited_df = split_src(check_columns, check_src_columns, check_df, check_src_df)
+splited_df = split_src(check_src_columns, check_src_df)
 
 # 날짜+시간에 관련된 내용을 뽑아 date_time_str에 저장
 date_time_str = splited_df['/header/received/0/src_at']
@@ -94,4 +94,4 @@ is_not_date = splited_and_concat_df['/header/received/0/src_at'].isnull()
 splited_and_concat_df.loc[is_not_date,'/header/received/0/src_at'] = splited_and_concat_df[is_not_date]['/header/received/0/date']
 
 # EDA에 사용할 csv 파일 생성
-eml_df.to_csv('./split_and_concat.csv')
+splited_and_concat_df.to_csv('./split_and_concat.csv')
