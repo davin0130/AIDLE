@@ -20,6 +20,11 @@ def toDataFrame(idx, key, value, column):
             eml_df = pd.concat([eml_df, toDataFrame(idx, k, value[k], col)], axis=1)
             
     elif type(value) == type(list()):
+        # received의 개수를 last_num 열에 추가
+        if col == '/header/received':
+            num = len(value)
+            eml_df = pd.concat([eml_df, pd.DataFrame(data={'last_num':num}, index=[idx])], axis=1)
+
         v = ''
         for i, d in enumerate(value):
             if type(d) == type(dict()):
