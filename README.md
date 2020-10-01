@@ -4,7 +4,7 @@
 자유롭게 얘기하고 자유롭게 수정가능
 <br><br>**파싱을 위한 코드 파일**
 <br>실행 순서
-<br>→ parsing(using_eml-parser) -> split_date_from_src -> find_origin_sender
+<br>parsing(using_eml-parser) -> split_date_from_src -> find_origin_sender
 <br>각 단계에서 나온 결과 csv를 다음단계 시작전에 읽어 사용
 
 - parsing(using_eml-parser)
