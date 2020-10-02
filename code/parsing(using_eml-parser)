@@ -130,4 +130,4 @@ def parsing(folder):
     return emls_df
     
 eml_df = parsing('dataset/eml') # 파싱할 eml 파일들이 있는 디렉토리 경로입력
-eml_df.to_csv('./test.csv')
+eml_df.to_csv('./test.csv',encoding='utf-8-sig')
