@@ -1,0 +1,47 @@
+import os, datetime, binascii, urllib.request, flask, requests, http.server
+import numpy as np
+import pandas as pd
+
+# web이랑 python 연동하는 메소드
+# 아직 미완성
+def method():
+    # hex to ascii online program
+    # /html/body/div[2]/div[3]/div[1]/form/div[2]/textarea
+    # get / hex
+    url = 'https://www.rapidtables.com/convert/number/hex-to-ascii.html'
+    webpage = urllib.request.urlopen(url).read().decode('utf-8')
+    location = "/html/body/div[2]/div[3]/div[1]/form/div[2]/textarea"
+    
+    return render_template(url, data=mail_body)
+
+    if request.method == 'GET':
+        hex = request.args["hex"]
+        return "GET으로 전달된 데이터 {}".format(hex)
+
+# mail_body 디코딩 하는 메소드
+# 아직 미완성
+# 현재 완료된 부분은 <html> 태그 안에서 <div>만 추출하여 분석가능하도록 가공
+def body_decoding(filename):
+    # 1. 치환 대상: 파일의 body 추출
+    # 2. <html></html> 사이의 = 을 모두 ' '으로 치환
+    csv = pd.read_csv(filename, names=['index', 'contents'], encoding='CP949')
+    mail_contents = csv['contents'].values[1].replace("=", " ")
+    
+    # mail_contents안에서 mail_body만 추출
+    mail_body = mail_contents.split("<BODY>")[1].split('</BODY>')[0]
+    word = mail_body.split(" ")
+    print(mail_body)
+    
+    URL = 'https://www.rapidtables.com/convert/number/hex-to-ascii.html' 
+    response = requests.get(URL) 
+    headers = {'Content-Type': 'text/html; charset=utf-8'} 
+    cookies = {'session_id': '_ga=GA1.2.1672267612.1594614401; __gads=ID=90716e40792fc2a9:T=1594614400:S=ALNI_MY7jBtxpTigKP60aaFgdalrdkNywg; _gid=GA1.2.950020456.1601619667'} 
+
+    res = requests.get(URL, headers=headers, cookies=cookies)
+    params = {'hex': mail_body}
+
+    print(res.request) # 내가 보낸 request 객체에 접근 가능 
+    print(res.status_code) # 응답 코드 
+    print(res.raise_for_status()) # 200 OK 코드가 아닌 경우 에러 발동
+    
+body_decoding('html.csv') # <html>태그만 뽑혀있는 'csv'파일 입력
