@@ -29,33 +29,52 @@ def toDataFrame(idx, key, value, column):
         for i, d in enumerate(value):
             if type(d) == type(dict()):
                 eml_df = pd.concat([eml_df, toDataFrame(idx, str(i), d, col)], axis=1)
-            elif type(d) == type(str()):
+                
+            else:   # str, email.headerregistry._ContentTypeHeader, ...
                 v += ' ' + d
         eml_df = pd.concat([eml_df, pd.DataFrame(data={col: v}, index=[idx])], axis=1)
     
-    else:     #str, datetime.datetime
+    else:     #str, datetime.datetime, ...
         eml_df = pd.DataFrame(data={col: value}, index=[idx])
         
     return eml_df
     
-### 인자로 받은 eml 파일의 내용을 한줄씩 읽어 <html>부터 </html>까지 하나의 column('html')에 저장하여 반환 ###
-def html_parsing(idx, file_path):
+### 인자로 받은 line이 필드(필드 이름과 필드 값으로 구성된 것)인지 확인
+### 참고자료: http://cr.yp.to/immhf/field.html
+def isField(line):
+    field = line.split(':')
+    answer = True
+    if len(field) == 2:     
+        fieldName = field[0]
+        for word in fieldName:
+            if ord(word) <= 33 or ord(word) >= 126:
+                answer = False
+    else:
+        answer = False
+    
+    return answer
+    
+### 인자로 받은 eml 파일의 내용을 한줄씩 읽어 <html>부터 </html>까지 하나의 column('html')에 저장하여 반환 ###참
+def content_parsing(idx, file_path):
     header = {}
     f = open(file_path, 'r', encoding='utf-8' )
-    isbody = False
+    iscontent = False
+    header['content'] = ''
     while True:
         line = f.readline()
         if not line:
             break
-
-        if '<html>' in line:
-            isbody = True
-            header['html'] = 'line'
-        if isbody == True:
-            header['html'] += line
-            if '</html>' in line:
-                ishtml = False
-                
+        
+        ######## 수정할 예정(body 부분에 존재하는 필드(content가 아닌 부분)까지 저장되는 문제 존재) ########
+        # 하나의 eml 파일에 content가 여러개 존재하는 경우 있음(/header/header/content-type 이 'multipart'인 경우로 추정
+        # 그런 경우 body안에 content 별로 필드(ex. content-type, content-transfer-encoding, ...)가 존재
+        # header의 content type에 따라 content를 파싱하는 방법을 달리할 예정
+        if '\n' == line or not (line[0]==' ' or line[0]=='\t' or isField(line)):
+            iscontent = True
+        if iscontent == True:
+            header['content'] += line
+            #if '<html>' in line:
+            #    ishtml = False
     return pd.DataFrame(data=header, index=[idx])
     
 ### 인자로 받은 디렉토리(folder)에 있는 파일들 중 선택된 파일들에 대해 파싱한 후 DataFrame으로 저장 ###
