@@ -54,7 +54,7 @@ def isField(line):
     
     return answer
     
-### 인자로 받은 eml 파일의 내용을 한줄씩 읽어 <html>부터 </html>까지 하나의 column('html')에 저장하여 반환 ###참
+### 인자로 받은 eml 파일의 내용을 한줄씩 읽어 <html>부터 </html>까지 하나의 column('html')에 저장하여 반환 ###
 def content_parsing(idx, file_path):
     header = {}
     f = open(file_path, 'r', encoding='utf-8' )
