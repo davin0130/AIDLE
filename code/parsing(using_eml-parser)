@@ -124,9 +124,9 @@ def parsing(folder):
             # 이전의 eml_df와 병합, eml_df에 header와 관련된 열들 추가
             eml_df = pd.concat([eml_df, toDataFrame(i, 'header', parsed_eml['header'], '')], axis=1)
             
-        #### html-parsing ####
-        # eml 파일의 html 부분을 통째로 파싱하여 DataFrame 'html'열에 저장 (메일 내용(html) 파싱)
-        # html-parsing 함수 이용
+        #### content-parsing ####
+        # eml 파일의 content 부분을 파싱하여 DataFrame 'content_n'열에 저장할 예정(하나의 파일에 content 여러개 있을 수 있음)
+        # content-parsing 함수(수정중...) 이용
         # 이전의 eml_df와 병합, eml_df에 'html'열 추가
         eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
         
