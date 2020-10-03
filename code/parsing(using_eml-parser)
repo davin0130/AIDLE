@@ -40,7 +40,7 @@ def toDataFrame(idx, key, value, column):
     return eml_df
     
 ### 인자로 받은 line이 필드(필드 이름과 필드 값으로 구성된 것)인지 확인
-### 참고자료: http://cr.yp.to/immhf/field.html
+# 참고자료: http://cr.yp.to/immhf/field.html
 def isField(line):
     field = line.split(':')
     answer = True
@@ -54,28 +54,70 @@ def isField(line):
     
     return answer
     
-### 인자로 받은 eml 파일의 내용을 한줄씩 읽어 <html>부터 </html>까지 하나의 column('html')에 저장하여 반환 ###
-def content_parsing(idx, file_path):
-    header = {}
+### eml 파일의 content 부분 파싱
+# 해당 eml 파일의 header content-type 값에 따라 파싱한다.
+# header content-type 값이 multipart인 경우 boundary 값과 빈 행('\n')을 이용해 파싱
+# header content-type 값이 multipart가 아닌 경우 빈 행('\n')을 이용해 파싱
+def content_parsing(idx, header_content_type, file_path):
     f = open(file_path, 'r', encoding='utf-8' )
-    iscontent = False
-    header['content'] = ''
-    while True:
-        line = f.readline()
-        if not line:
-            break
+    contents = {}
+    if 'multipart' in header_content_type:
+        i = -1
+        isbody_content_type = False
+        iscontent = False
+        # content-type에서 boundary 파라미터 추출
+        boundary = header_content_type.split('boundary=')
+        boundary = boundary[1][1:-1]
         
-        ######## 수정할 예정(body 부분에 존재하는 필드(content가 아닌 부분)까지 저장되는 문제 존재) ########
-        # 하나의 eml 파일에 content가 여러개 존재하는 경우 있음(/header/header/content-type 이 'multipart'인 경우로 추정
-        # 그런 경우 body안에 content 별로 필드(ex. content-type, content-transfer-encoding, ...)가 존재
-        # header의 content type에 따라 content를 파싱하는 방법을 달리할 예정
-        if '\n' == line or not (line[0]==' ' or line[0]=='\t' or isField(line)):
-            iscontent = True
-        if iscontent == True:
-            header['content'] += line
-            #if '<html>' in line:
-            #    ishtml = False
-    return pd.DataFrame(data=header, index=[idx])
+        while True:
+            line = f.readline()
+            if not line:
+                print('not line으로 종료')
+                break
+            
+            # 각 content의 시작 부분마다 --boundary 가 존재
+            # 맨 마지막에 --boundary--로 끝남
+            if line == '--'+boundary+'\n':
+                isbody_content_type = True
+                iscontent = False
+                i += 1
+                contents['content_'+str(i)] = ''
+                
+            elif line == '--'+boundary+'--\n':
+                break
+                
+            elif isbody_content_type == True:
+                # (1) 빈 행 인지 검사하는 것 만으로도 충분할 것 같음
+                if line == '\n':
+                #if '\n' == line or not (line[0]==' ' or line[0]=='\t' or isFiled(line)):
+
+                    iscontent = True
+                    isbody_content_type = False
+                
+            elif iscontent == True:
+                contents['content_'+str(i)] += line
+    else:
+        iscontent = False
+        contents['content_0'] = ''
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            ###########
+            # http://cr.yp.to/immhf/header.html
+            # 헤더와 content를 구분하는 기준
+            # 헤더 행이 될 수없는 첫 번째 행에서 헤더 읽기를 중지하십시오. 
+            # (1) 빈 행 또는 (2) 공백, 탭 또는 필드 이름 과 콜론으로 시작하지 않는 행 . 
+            # 이 전략을 권장합니다. 822 호환 메시지와 거의 모든 깨진 메시지를 올바르게 처리합니다.
+            ###########
+            # (1) 빈 행 인지 검사하는 것 만으로도 충분할 것 같음
+            #if '\n' == line:
+            if '\n' == line or not (line[0]==' ' or line[0]=='\t' or isFiled(line)):
+                iscontent = True
+            if iscontent == True:
+                contents['content_0'] += line
+                
+    return pd.DataFrame(data=contents, index=[idx])
     
 ### 인자로 받은 디렉토리(folder)에 있는 파일들 중 선택된 파일들에 대해 파싱한 후 DataFrame으로 저장 ###
 def parsing(folder):
@@ -125,10 +167,14 @@ def parsing(folder):
             eml_df = pd.concat([eml_df, toDataFrame(i, 'header', parsed_eml['header'], '')], axis=1)
             
         #### content-parsing ####
-        # eml 파일의 content 부분을 파싱하여 DataFrame 'content_n'열에 저장할 예정(하나의 파일에 content 여러개 있을 수 있음)
-        # content-parsing 함수(수정중...) 이용
+        # eml 파일의 content 부분을 파싱하여 DataFrame 'content_n'열에 저장(하나의 파일에 content 여러개 있을 수 있음)
+        # content-parsing 함수 이용
         # 이전의 eml_df와 병합, eml_df에 'html'열 추가
-        eml_df = pd.concat([eml_df, html_parsing(i, file_path)], axis=1)
+        if '/header/header/content-type' in eml_df.columns:
+            eml_df = pd.concat([eml_df, content_parsing(i, eml_df.loc[i,'/header/header/content-type'], file_path)], axis=1)
+        else:
+            print('/header/header/content-type 열이 없음')
+
         
         # error가 발생해도 나머지 파일들에 대한 파싱값 저장하기 위해 try-except 사용
         try:
