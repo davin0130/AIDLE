@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 
 # web이랑 python 연동하는 메소드
-# 아직 미완성
+# web으로 <div>태그 사이 값을 보내서 디코딩하여 그 결과값을 python으로 다시 갖고오려는 목적
+# 아직 미완성 / 사용금지~ 
 def method():
     # hex to ascii online program
     # /html/body/div[2]/div[3]/div[1]/form/div[2]/textarea
@@ -32,13 +33,15 @@ def body_decoding(filename):
     word = mail_body.split(" ")
     print(mail_body)
     
+    # 디코딩 함수 안에서 web과 연결하려는 시도
+    # 연결은 되지만 값 전달이 되지 않는 상태라고 볼 수 있습니다.
     URL = 'https://www.rapidtables.com/convert/number/hex-to-ascii.html' 
     response = requests.get(URL) 
     headers = {'Content-Type': 'text/html; charset=utf-8'} 
     cookies = {'session_id': '_ga=GA1.2.1672267612.1594614401; __gads=ID=90716e40792fc2a9:T=1594614400:S=ALNI_MY7jBtxpTigKP60aaFgdalrdkNywg; _gid=GA1.2.950020456.1601619667'} 
 
     res = requests.get(URL, headers=headers, cookies=cookies)
-    params = {'hex': mail_body}
+    params = {'hex': mail_body} # web elements 중 hex라는 이름의 textarea에 mail_boy 변수에 들어간 결과값 전달하려는 시도
 
     print(res.request) # 내가 보낸 request 객체에 접근 가능 
     print(res.status_code) # 응답 코드 
