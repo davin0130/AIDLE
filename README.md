@@ -9,16 +9,16 @@
 
 - parsing(using_eml-parser) 
 <br> eml 파일들을 읽어 eml-parser를 이용해 각 파일의 헤더부분 파싱해서 각각 해당 열에 추가, html 부분 전체 파싱해서 'html' 열에 추가
-<br> 생성되는 csv: 'parsed_eml.csv'
+<br> 생성되는 csv: 'parsed_eml_1.csv'
 - split_date_from_src
 <br> /header/received/0/src 부분에서 at 뒤의 시간 정보 부분 파싱하여 /header/received/0/src_at에 저장
 <br> 하는 이유: /header/received/0/date에 제대로 저장안된 듯 보여서
 <br> cf. /header/received/0/src 내용은 헤더에서 가장 마지막에 쌓인 received 정보
-<br> 생성되는 csv: 'split_date_from_receaved_0_src.csv'
+<br> 생성되는 csv: 'parsed_eml_2.csv'
 - find_origin_info
 <br> 각 헤더에 쌓인 received 중 가장 아래의 부분(최초로 발송될 때의 발신자, 수신자 정보)을 각 행의 ori_sender_ip, ori_sender_server, ori_receiver_mail에 저장
 <br> 하는 이유: 최초 발신자, 수신자 정보를 분석에 사용하기 위해
-<br> 생성되는 csv: 'add_origin_info.csv'
+<br> 생성되는 csv: 'parsed_eml_3.csv'
 
 **html 부분(메일 본문 부분) 디코딩(처리)을 위한 코드 파일**
 - mailbody_decoder
