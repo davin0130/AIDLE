@@ -139,9 +139,9 @@ def EldiaWord(folder:str):
 
 		for key,value in frequency.items(): # getting a word
 			count=frequencycollecter.get(key,0)
-			frequency_collecter[key]=count+value
+			frequencycollecter[key]=count+value
 
-	nounlist=sorted(frequency_collecter.items(),reverse=True,key=lambda item:item[1])	
+	nounlist=sorted(frequencycollecter.items(),reverse=True,key=lambda item:item[1])	
 
 
 	for i in range(len(nounlist)):
