@@ -48,10 +48,10 @@ def FrequencyTester(emlstring:str):
 	#################
 
 	for word in tokens:
-		count=frequency_collecter.get(word,0)
+		count=frequencycollecter.get(word,0)
 		frequencycollecter[word]=count+1
 	
-	return frequency_collecter
+	return frequencycollecter
 
 def RemoveTag(htmlcode:str):
 	s=re.sub(r'(<([^>]+)>)', ' ', htmlcode)
