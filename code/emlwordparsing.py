@@ -39,8 +39,8 @@ def FrequencyTester(emlstring:str):
 	# 		n_gram=NgramSample(j,i)
 	# 		SetFrequency(n_gram,i,frequency)		
 	# 	for key,value in frequency.items():
-	# 		count=frequency_collecter.get(key,0)
-	# 		frequency_collecter[key]=count+value
+	# 		count=frequencycollecter.get(key,0)
+	# 		frequencycollecter[key]=count+value
 	# 	frequency={}
 
 	#################
