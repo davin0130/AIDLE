@@ -23,7 +23,7 @@ def NgramSample(string:str,n:int):
 def FrequencyTester(emlstring:str):		
 	# remove url by http domain form for english
 	s=re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$\-@\.&+:/?=]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ' ', emlstring)
-	s=re.sub(r'[^a-z]', ' ', emlstring)
+	s=re.sub(r'[^a-z]', ' ', s)
 
 	tokens=[token for token in s.split(' ') if token!=""]	
 	frequency={}
