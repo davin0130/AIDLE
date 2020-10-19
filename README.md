@@ -19,7 +19,10 @@
 <br> 각 헤더에 쌓인 received 중 가장 아래의 부분(최초로 발송될 때의 발신자, 수신자 정보)을 각 행의 ori_sender_ip, ori_sender_server, ori_receiver_mail에 저장
 <br> 하는 이유: 최초 발신자, 수신자 정보를 분석에 사용하기 위해
 <br> 생성되는 csv: 'parsed_eml_3.csv'
-
+- emlwordparsing
+<br>메일을 해석해서 본문에 있는 문자들을 빈도순 으로 파싱
+<br>단어의 빈도는 ngram or word 단위로 처리
+<br>영어,한글,일본어,중국어에 대한 표현식으로처리
 **html 부분(메일 본문 부분) 디코딩(처리)을 위한 코드 파일**
 - mailbody_decoder
 <br> <'html>태그만 뽑혀있는 'csv'파일에 대해서만 현재 처리 가능
