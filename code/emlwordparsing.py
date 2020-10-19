@@ -1,5 +1,4 @@
 import email,os,sys,base64,quopri,re,html,time
-from googletrans import Translator
 from nltk.util import ngrams
 
 import pandas as pd
@@ -28,13 +27,11 @@ def FrequencyTester(emlstring:str):
 
 	tokens=[token for token in s.split(' ') if token!=""]	
 	frequency={}
-	frequency_collecter={}
+	frequencycollecter={}
 
 
 	#################
-	#				#	
-	# 	 ngram 		#
-	#				#
+	##### ngram #####
 	#################
 
 	# for i in range(1,6): #ngram
@@ -47,14 +44,12 @@ def FrequencyTester(emlstring:str):
 	# 	frequency={}
 
 	#################
-	#				#	
-	# 	word	 	#
-	#				#
+	###	word ########
 	#################
 
 	for word in tokens:
 		count=frequency_collecter.get(word,0)
-		frequency_collecter[word]=count+1
+		frequencycollecter[word]=count+1
 	
 	return frequency_collecter
 
@@ -125,37 +120,34 @@ def ContentDecoder(emlstring:str,filename:str):
 
 def EldiaWord(folder:str):
 
-	file_list = os.listdir(folder)
-	frequency_collecter={}
+	filelist = os.listdir(folder)
+	frequencycollecter={}
 	nounlist=[]
 	number=1
 
-	for file in file_list:
+	for file in filelist:
 		if number % 1000 == 0:
 			print(number,'\n',file)
-		if number % 50000 == 0:
+		if number % 50000 == 0: # available 50000files
 			break
 		number+=1
 
-		file_path = os.path.join(folder, file)
+		filepath = os.path.join(folder, file)
 		f=open(file_path,encoding='utf-8').read()
-		emlstring=ContentDecoder(f,file_path)
+		emlstring=ContentDecoder(f,filepath)
 		frequency=FrequencyTester(emlstring) # one's file frequnecy
 
 		for key,value in frequency.items(): # getting a word
-			count=frequency_collecter.get(key,0)
+			count=frequencycollecter.get(key,0)
 			frequency_collecter[key]=count+value
 
 	nounlist=sorted(frequency_collecter.items(),reverse=True,key=lambda item:item[1])	
 
-	wordslist=[i[0] for i in nounlist]
-
 
 	for i in range(len(nounlist)):
-		nounlist[i]=nounlist[i]+(len(nounlist[i][0]),translatation[i].text,)
+		nounlist[i]=nounlist[i]+(len(nounlist[i][0]),)
 
-	df = pd.DataFrame(nounlist,columns=['words', 'frequency','ngram','translate'])
-	df = df[['words','translate','frequency','ngram']]
+	df = pd.DataFrame(nounlist,columns=['words','frequency','ngram'])
 	df.to_csv('./English_words_50000_v2.csv',encoding='utf-8-sig')
 
 if __name__=="__main__":
