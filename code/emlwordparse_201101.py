@@ -23,7 +23,7 @@ def FrequencyTester(emlstring:str):
 	
 	# 언어별로 주석풀어서 사용 할 것
 	# s=re.sub(r'[^가-힣ㄱ-ㅎ]', ' ', s)	# korean
-	# s=re.sub(r'[^\u3041-\u3096\u30A0-\u30FF\u3400-\u4DB5\u4E00-\u9FCB\uF900-\uFA6A\u2E80-\u2FD5\uFF5F-\uFF9F\u3000-\u303F\u31F0-\u31FF\u3220-\u3243\u3280-\u337F]', ' ', s)	# japanese	
+	# s=re.sub(r'[^\u3041-\u3096\u30A0-\u30FF\u3400-\u4DB5\u4E00-\u9FCB\uF900-\uFA6A\u2E80-\u2FD5\uFF5F-\uFF9F\u3000-\u303F\u31F0-\u31FF\u3220-\u3243\u3280-\u337F]', ' ', s)	# japanese	 
 	# s=re.sub(u'[^⺀-⺙⺛-⻳⼀-⿕々〇〡-〩〸-〺〻㐀-䶵一-鿃豈-鶴侮-頻並-龎]', ' ', s)	# hanja
 
 	tokens=[token for token in s.split(' ') if token!=""]	
